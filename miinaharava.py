@@ -169,7 +169,7 @@ def tulvataytto(x, y, rakenne):
                 viereiset.append((j, i))
 
     liput_maara = 0
-    for i, j in viereiset:
+    for j, i  in viereiset:
         if (j, i) in peli["liput"]:
             liput_maara += 1
 
@@ -179,6 +179,7 @@ def tulvataytto(x, y, rakenne):
         for xx, yy in viereiset:
             if (xx, yy) not in peli["liput"]:
                 avaa_ruutu(rakenne, peli["avaamattomat"], peli["avatut"], xx, yy, peli["miinojen_sijainnit"], peli["liput"])
+
 
 
 
@@ -234,46 +235,47 @@ def piirra_valikko():
 
 def piirra_kysely():
     """
-    Piirtokäsittelijäfunktio kenttätietojen kyselylle.  Piirtää kyselyn otsikon, sivun painikkeet,
-    kysymykset, käyttäjän syötteen ja virheilmoitukset.
+    Piirtokäsittelijäfunktio kenttätietojen kyselylle. 
     """
-
     ha.tyhjaa_ikkuna()
     ha.piirra_tausta()
 
-
     piirra_painike(65, 15, 200, 50, "VALIKKO", 17)
     piirra_painike(300, 15, 200, 50, "TYHJENNÄ", 17)
-    piirra_painike(535, 15, 200, 50, "LOPETA", 17)
-
-
+    piirra_painike(535, 15, 200, 50, "ALOITA", 17) 
+    
     huomautukset = {
-    1: "-miinat eivät mahdu kentälle-",
-    2: "-syötteen tulee olla nollasta eroava kokonaisluku-",
-    3: "-kentän suurin mahdollinen korkeus on 25 ruutua-",
-    4: "-kentän suurin mahdollinen leveys on 70 ruutua-",
-}
-    y_kysymys = [428, 313, 204, 115] #kysymyksen y-koordinaatti
-    VÄLI = 49 #kysymyksen ja syötteen väliin jäävä tila
+        1: "-miinat eivät mahdu kentälle-",
+        2: "-syötteen tulee olla nollasta eroava kokonaisluku-",
+        3: "-kentän suurin mahdollinen korkeus on 25 ruutua-",
+        4: "-kentän suurin mahdollinen leveys on 70 ruutua-",
+    }
+    
+    y_kysymys = [428, 313, 204]
+    VALI = 49
     kentan_tiedot_avaimet = ["leveys", "korkeus", "miinat"]
-
+    
     piirra_teksti("SYÖTÄ KENTÄN TIEDOT", 400, 530, koko=19, ankkuriy='top')
 
-    for i in range(kysely["nykyinen_kysymys"] + 1):
+    for i in range(3):
         piirra_teksti(kysymykset[i], 400, y_kysymys[i], koko=13, ankkuriy='top')
-
-        if i < kysely["nykyinen_kysymys"]: #edellinen arvo näkyviin
-            nykyinen_avain = kentan_tiedot_avaimet[i]
-            arvo = kentan_tiedot[nykyinen_avain]
-            piirra_teksti(str(arvo), 400, y_kysymys[i] - VÄLI, koko=13)
+        
+        if i == kysely["nykyinen_kysymys"]:
+            piirra_teksti(kysely["kayttajan_teksti"], 400, y_kysymys[i] - VALI, koko=13)
+            piirra_kohdistin(y_kysymys[i] - VALI)
         else:
-            piirra_teksti(kysely["kayttajan_teksti"], 400, y_kysymys[i] - VÄLI, koko=13)
-            piirra_kohdistin(y_kysymys[i] - VÄLI)
+            if kentan_tiedot_avaimet[i] in kentan_tiedot:
+             arvo = str(kentan_tiedot[kentan_tiedot_avaimet[i]]) 
+            else:
+                arvo = ""
+
+            piirra_teksti(arvo, 400, y_kysymys[i] - VALI, koko=13)
 
     if kysely["huomautukset"]:
         piirra_teksti(huomautukset[kysely["huomautukset"]], 400, 115, koko=10)
 
     ha.piirra_ruudut()
+
 
 def piirra_kohdistin(y):
     """
@@ -344,8 +346,8 @@ def piirra_ylapalkki():
     #MIINALASKURI JA AJASTIN
     ha.lisaa_piirrettava_ruutu("loota", mitat["leveys"] // 2 - 155, mitat["korkeus"] - 90)
     ha.lisaa_piirrettava_ruutu("loota", mitat["leveys"] //2  + 55, mitat["korkeus"] - 90)
-    piirra_teksti(miinoja_jaljella, mitat["leveys"] // 2 - 104, mitat["korkeus"] - 67, vari=(255, 255, 255, 255), koko=20)
-    piirra_teksti(str(aika), mitat["leveys"] // 2 + 107, mitat["korkeus"] - 67, vari=(255, 255, 255, 255), koko=20)
+    piirra_teksti(miinoja_jaljella, mitat["leveys"] // 2 - 104, mitat["korkeus"] - 67, vari=(255, 255, 255, 255), koko=17)
+    piirra_teksti(str(aika), mitat["leveys"] // 2 + 107, mitat["korkeus"] - 67, vari=(255, 255, 255, 255), koko=17)
 
     #HYMIÖ
     if tilastot["tulos"] == "Voitto":
@@ -435,6 +437,8 @@ def piirra_tilastot():
 
 
 
+
+
 def nappi_aloitus(symboli, muokkausnapit):
     """
     Näppäinkäsittelijäfunktio aloitussivulle.
@@ -442,43 +446,40 @@ def nappi_aloitus(symboli, muokkausnapit):
     if symboli == NAPIT.ENTER:
         valikko_ikkuna()
 
+
 def kysely_nappaimet(symboli, muokkausnapit):
     """
-    Näppäinkäsittelijäfunktio kyselysivulle. Käyttäjä antaa syötteen ja syöte tarkistetaan.
-    Jos syöte on kelvollinen, se tallennetaan sanakirjaan ja siirrytään seuraavaan kysymykseen. 
-    Jos syöte ei ole kelvollinen, käyttäjälle annetaan huomautusviesti ja syötteen voi korjata.
+    Näppäinkäsittelijäfunktio kyselysivulle.
     """
-
+    kentan_tiedot_avaimet = ["leveys", "korkeus", "miinat"]
     if symboli in [NAPIT._0, NAPIT._1, NAPIT._2, NAPIT._3, NAPIT._4, 
-            NAPIT._5, NAPIT._6, NAPIT._7, NAPIT._8, NAPIT._9]:
-        kysely["kayttajan_teksti"] += chr(symboli)
-        kysely["huomautukset"] = 0
-
+                   NAPIT._5, NAPIT._6, NAPIT._7, NAPIT._8, NAPIT._9]:
+        if len(kysely["kayttajan_teksti"]) < 4:
+            kysely["kayttajan_teksti"] += chr(symboli)
+            kysely["huomautukset"] = 0
+    
     elif symboli == NAPIT.BACKSPACE:
         if kysely["kayttajan_teksti"]:
             kysely["kayttajan_teksti"] = kysely["kayttajan_teksti"][:-1]
-
+    
     elif symboli == NAPIT.ENTER:
         syote = kysely["kayttajan_teksti"]
         kysymys = kysely["nykyinen_kysymys"]
         tarkistus, tulos = syotteen_tarkistus(syote, kysymys)
-
+        
         if tarkistus:
-            if kysymys == 0:
-                kentan_tiedot["leveys"] = tulos
-            elif kysymys == 1:
-                kentan_tiedot["korkeus"] = tulos
-            elif kysymys == 2:
-                kentan_tiedot["miinat"] = tulos
-            kysely["nykyinen_kysymys"] += 1
-            kysely["kayttajan_teksti"] = ""
-
+            kentan_tiedot[kentan_tiedot_avaimet[kysymys]] = tulos
+            if kysely["nykyinen_kysymys"] < 2:
+                kysely["nykyinen_kysymys"] += 1
+                if kentan_tiedot_avaimet[kysely["nykyinen_kysymys"]] in kentan_tiedot:
+                    kysely["kayttajan_teksti"] = str(kentan_tiedot[kentan_tiedot_avaimet[kysely["nykyinen_kysymys"]]])
+                else:
+                    kysely["kayttajan_teksti"] = ""
+            else:
+                tarkista_ja_aloita()
         else:
             kysely["huomautukset"] = tulos
 
-
-        if kysely["nykyinen_kysymys"] == 3:
-            peli_ikkuna()
 
 def tyhja_nappain(symboli, muokkausnapit):
     """
@@ -505,22 +506,47 @@ def valikko_hiiri(x, y, nappi, modifiointi):
 
         elif (217 <= x <= 582) and (85 <= y <= 200):
             ha.lopeta()
-  
+
 def kysely_hiiri(x, y, nappi, modifiointi):
     """
     Käsittelijäfunktio kyselysivun hiirelle.
     """
+    kentan_tiedot_avaimet = ["leveys", "korkeus", "miinat"]
+    y_kysymys = [428, 313, 204]
+    VALI = 49
+    
     if nappi == ha.HIIRI_VASEN:
 
+        #Tallennetaan aiempi syöte ennen siirtymistä toiseen kenttään
+        syote = kysely["kayttajan_teksti"]
+        kysymys = kysely["nykyinen_kysymys"]
+        if syote:
+            tarkistus, tulos = syotteen_tarkistus(syote, kysymys)
+            if tarkistus:
+                kentan_tiedot[kentan_tiedot_avaimet[kysymys]] = tulos
+            else:
+                kysely["huomautukset"] = tulos
+        
         if (90 <= x <= 260) and (13 <= y <= 65):
             valikko_ikkuna()
-
+        
         if (315 <= x <= 485) and (13 <= y <= 65):
             alusta_kentan_tiedot()
             alusta_kysely()
-
+        
         if (580 <= x <= 750) and (13 <= y <= 65):
-            ha.lopeta()
+            tarkista_ja_aloita()
+        
+        #Syötteen muuttaminen klikkaamalla kysymyksen syötealuetta
+        for i in range(3):
+            if (40 <= x <= 760) and (y_kysymys[i] - 115 <= y <= y_kysymys[i]):
+                kysely["nykyinen_kysymys"] = i
+                if kentan_tiedot_avaimet[i] in kentan_tiedot:
+                    kysely["kayttajan_teksti"] = str(kentan_tiedot[kentan_tiedot_avaimet[i]])
+                else:
+                    kysely["kayttajan_teksti"] = ""
+                break
+
 
 def peli_hiiri(x, y, nappi, modifiointi):
     """
@@ -578,24 +604,26 @@ def peli_hiiri(x, y, nappi, modifiointi):
 
             #KÄYNNISSÄ, peliruutujen avaaminen ja tulvatäyttö
             if (koord_x, koord_y) in peli["avatut"]:
+                peli["vuorot"] +=1
                 tulvataytto(koord_x, koord_y, peli["kentta"])
             elif (koord_x, koord_y) not in peli["liput"]:
                 peli["vuorot"] +=1
                 avaa_ruutu(peli["kentta"], peli["avaamattomat"], peli["avatut"], koord_x, koord_y, peli["miinojen_sijainnit"], peli["liput"])
 
             #KESKEYTÄ -nappi, siirtyy keskeytys-tilaan
-            if leveys // 2 - 100 < x < leveys // 2 + 100 and 30 < y < 80:
+            if tila["aika"] > 1 and leveys // 2 - 100 < x < leveys // 2 + 100 and 30 < y < 80:
                 peli["keskeytys"] = True
 
         #KÄYNNISSÄ, ruutujen liputus
         elif nappi == ha.HIIRI_OIKEA:
+            peli["vuorot"] +=1
             liputa(koord_x, koord_y, peli["liput"], peli["vuorot"], kentan_tiedot["miinat"], peli["avatut"])
 
         #KÄYNNISSÄ, tulvatäyttö
         elif nappi == ha.HIIRI_KESKI:
             if (koord_x, koord_y) in peli["avatut"]:
+                peli["vuorot"] +=1
                 tulvataytto(koord_x, koord_y, peli["kentta"])
-
 
         if tarkista_voitto(peli["avaamattomat"], peli["miinojen_sijainnit"]):
             peli_paattyi('voitto')
@@ -615,7 +643,8 @@ def aloitus_hiiri(x, y, nappi, modifiointi):
 
 
 
-##TILA
+
+
 
 def luo_mitat(leveys, korkeus):
     """
@@ -632,7 +661,6 @@ def luo_mitat(leveys, korkeus):
     y_reuna = 110
     leveys_ikkuna = leveys * ruutu_koko + 80
     korkeus_ikkuna = korkeus * ruutu_koko + 240
-
    
     #kapea kenttä
     if leveys <= 15 and korkeus > 14 or leveys <= 7:
@@ -658,14 +686,37 @@ def alusta_kysely():
         "kohdistin_nakyy": True
     })
 
+def tarkista_ja_aloita():
+    """
+    Tarkistaa syötteiden kelpoisuuden ja käynnistää pelin, jos ne ovat kunnossa.
+    """
+    kentan_tiedot_avaimet = ["leveys", "korkeus", "miinat"]
+
+    kysely_valmis = True
+    for i, avain in enumerate(kentan_tiedot_avaimet):
+        if avain in kentan_tiedot:
+            syote = str(kentan_tiedot[avain]) 
+        else:
+            syote = ""
+        hyvaksytty, _ = syotteen_tarkistus(syote, i)
+        if not hyvaksytty:
+            kysely_valmis = False
+            break
+    
+    if kysely_valmis:
+        peli_ikkuna()
+    else:
+        kysely["huomautukset"] = 2
+
+
 def alusta_kentan_tiedot():
     """
     Alustaa kentän tiedot.
     """
     kentan_tiedot.update({
-    "leveys": 0,
-    "korkeus": 0,
-    "miinat": 0
+    "leveys": "",
+    "korkeus": "",
+    "miinat": ""
     })
     
 def alusta_tilastot():
@@ -847,11 +898,11 @@ def syotteen_tarkistus(syote, kysymys):
             if arvo > 70:
                 return False, 4
 
-        elif kysymys == 1:  # Korkeus
+        elif kysymys == 1:  #Korkeus
             if arvo > 25:
                 return False, 3
 
-        elif kysymys == 2:  # Miinojen määrä
+        elif kysymys == 2:  #Miinojen määrä
             if arvo >= kentan_tiedot["leveys"] * kentan_tiedot["korkeus"]:
                 return False, 1
 
@@ -967,3 +1018,4 @@ def aloitus_ikkuna():
 if __name__ == "__main__":
     aloitus_ikkuna()
     ha.aloita()
+
